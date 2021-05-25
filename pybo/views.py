@@ -5,14 +5,21 @@ from django.http import HttpResponse
 from .models import Question
 from django.utils import timezone
 from .forms import QuestionForm, AnswerForm
+from django.core.paginator import Paginator
 
 def index(request):
     """
     파이보 목록 출력
     """
+    # 입력 파라미터
+    page = request.GET.get('page', '1')  # 페이지
+    # 조회
     question_list = Question.objects.order_by('-create_date')
-    context = {'question_list': question_list}
-    # return HttpResponse("안녕하세요 파이보에 오신것은 환영합니다.")
+    # 페이징처리
+    paginator = Paginator(question_list, 10)  # 페이지당 10개씩 보여주기
+    page_obj = paginator.get_page(page)
+
+    context = {'question_list': page_obj}
     return render(request, 'pybo/question_list.html', context)
 
 def detail(request, question_id):
